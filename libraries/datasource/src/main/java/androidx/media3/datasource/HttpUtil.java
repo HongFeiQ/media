@@ -50,9 +50,9 @@ public final class HttpUtil {
    */
   @Nullable
   public static String buildRangeRequestHeader(long position, long length) {
-    if (position == 0 && length == C.LENGTH_UNSET) {
-      return null;
-    }
+//    if (position == 0 && length == C.LENGTH_UNSET) {
+//      return null;
+//    }
     StringBuilder rangeValue = new StringBuilder();
     rangeValue.append("bytes=");
     rangeValue.append(position);
