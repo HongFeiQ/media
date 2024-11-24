@@ -280,7 +280,11 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     }
 
     int responseCode = response.code();
-
+    if (responseCode == 403 || responseCode == 404 || responseCode == 500) {
+      connectionEstablished = true;
+      transferStarted(dataSpec);
+      return 0;
+    }
     // Check for a valid response code.
     if (!response.isSuccessful()) {
       if (responseCode == 416) {
