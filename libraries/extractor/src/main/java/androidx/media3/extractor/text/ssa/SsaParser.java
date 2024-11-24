@@ -297,6 +297,12 @@ public final class SsaParser implements SubtitleParser {
     SsaDialogueFormat format = haveInitializationData ? dialogueFormatFromInitializationData : null;
     @Nullable String currentLine;
     while ((currentLine = data.readLine(charset)) != null) {
+      currentLine = currentLine.replaceAll("(?:\\r\\n)", "<br />");
+      currentLine = currentLine.replaceAll("(?:\\r)", "<br />");
+      currentLine = currentLine.replaceAll("(?:\\n)", "<br />");
+      currentLine = currentLine.replaceAll("\\\\N", "<br />");
+      currentLine = currentLine.replaceAll("\\{[\\s\\S]*?\\}", "");
+      currentLine = currentLine.replaceAll("^.*?,.*?,.*?,.*?,.*?,.*?,.*?,.*?,.*?,", "");
       if (currentLine.startsWith(FORMAT_LINE_PREFIX)) {
         format = SsaDialogueFormat.fromFormatLine(currentLine);
       } else if (currentLine.startsWith(DIALOGUE_LINE_PREFIX)) {

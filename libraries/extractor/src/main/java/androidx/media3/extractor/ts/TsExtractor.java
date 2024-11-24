@@ -348,10 +348,28 @@ public final class TsExtractor implements Extractor {
     resetPayloadReaders();
   }
 
+
+  /**
+   * 解决伪装成png/bmp的ts
+   *
+   * @param input
+   * @throws IOException
+   */
+  private void skip(ExtractorInput input) throws IOException {
+    byte[] data = this.tsPacketBuffer.getData();
+    input.peekFully(data, 0, TS_PACKET_SIZE * SNIFF_TS_PACKET_COUNT);
+    for (int i = 0; i < TS_PACKET_SIZE * SNIFF_TS_PACKET_COUNT; i++) {
+      if (data[i] == 71 && data[i + TS_PACKET_SIZE] == 71) {
+        if (i > 0) input.skipFully(i);
+        break;
+      }
+    }
+  }
   // Extractor implementation.
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
+    skip(input);
     byte[] buffer = tsPacketBuffer.getData();
     input.peekFully(buffer, 0, TS_PACKET_SIZE * SNIFF_TS_PACKET_COUNT);
     for (int startPosCandidate = 0; startPosCandidate < TS_PACKET_SIZE; startPosCandidate++) {
@@ -593,10 +611,10 @@ public final class TsExtractor implements Extractor {
     int endOfPacket = syncBytePosition + TS_PACKET_SIZE;
     if (endOfPacket > limit) {
       bytesSinceLastSync += syncBytePosition - searchStart;
-      if (mode == MODE_HLS && bytesSinceLastSync > TS_PACKET_SIZE * 2) {
-        throw ParserException.createForMalformedContainer(
-            "Cannot find sync byte. Most likely not a Transport Stream.", /* cause= */ null);
-      }
+//      if (mode == MODE_HLS && bytesSinceLastSync > TS_PACKET_SIZE * 2) {
+//        throw ParserException.createForMalformedContainer(
+//            "Cannot find sync byte. Most likely not a Transport Stream.", /* cause= */ null);
+//      }
     } else {
       // We have found a packet within the buffer.
       bytesSinceLastSync = 0;
